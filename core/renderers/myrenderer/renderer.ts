@@ -9,4 +9,4 @@ export class Renderer extends BaseRenderer{
     }
 }
 
-blockRendering.register('CustomRenderer', Renderer);
+blockRendering.register('myrenderer', Renderer);
