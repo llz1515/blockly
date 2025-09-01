@@ -195,7 +195,7 @@ import * as blockRendering from './renderers/common/block_rendering.js';
 import * as geras from './renderers/geras/geras.js';
 import * as thrasos from './renderers/thrasos/thrasos.js';
 import * as zelos from './renderers/zelos/zelos.js';
-import * as myrenderer from './renderers/myrenderer/renderer.js'
+import * as CustomRenderer from './renderers/CustomRenderer/renderer.js'
 import {Scrollbar} from './scrollbar.js';
 import {ScrollbarPair} from './scrollbar_pair.js';
 import * as serialization from './serialization.js';
@@ -495,7 +495,7 @@ export {
   uiPosition,
   utils,
   zelos,
-  myrenderer
+  CustomRenderer
 };
 export const DropDownDiv = dropDownDiv;
 export {

@@ -5,8 +5,8 @@ export class Renderer extends BaseRenderer{
     constructor(name: string) {
         super(name);
 
-        console.warn("Custom renderer start!");
+        console.log("Custom renderer start!");
     }
 }
 
-blockRendering.register('myrenderer', Renderer);
+blockRendering.register('CustomRenderer', Renderer);

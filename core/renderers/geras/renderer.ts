@@ -34,6 +34,7 @@ export class Renderer extends BaseRenderer {
    */
   constructor(name: string) {
     super(name);
+    console.log("geras renderer start!");
   }
 
   /**
