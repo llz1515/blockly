@@ -1,3 +1,5 @@
+import { names } from './../../shortcut_items';
+import { Names } from './../../names';
 /**
  * @license
  * Copyright 2019 Google LLC
@@ -148,7 +150,7 @@ export class RenderInfo {
    * This measure pass does not propagate changes to the block (although fields
    * may choose to rerender when getSize() is called).  However, calling it
    * repeatedly may be expensive.
-   */
+   */  
   measure() {
     this.createRows_();
     this.addElemSpacing_();
@@ -157,7 +159,7 @@ export class RenderInfo {
     this.alignRowElements_();
     this.finalize_();
   }
-
+  
   /**
    * Create rows of Measurable objects representing all renderable parts of the
    * block.

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Canvas Renderer Test</title>
+    <script src="../../build/src/core/blockly.js"></script>
+    <script src="../../build/src/blocks/blocks.js"></script>
+    <script src="../../build/src/core/renderers/CustomRenderer/CustomRenderer.js"></script>
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: sans-serif;
+        }
+        #blocklyDiv {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 800px;
+            height: 600px;
+            border: 1px solid #ddd;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">Canvas Renderer Test - CustomRenderer</div>
+    <div id="blocklyDiv"></div>
+
+    <script>
+        // Define a simple toolbox
+        const toolbox = {
+            "kind": "flyoutToolbox",
+            "contents": [
+                {
+                    "kind": "block",
+                    "type": "controls_if"
+                },
+                {
+                    "kind": "block",
+                    "type": "logic_compare"
+                },
+                {
+                    "kind": "block",
+                    "type": "math_number",
+                    "fields": {
+                        "NUM": 123
+                    }
+                },
+                {
+                    "kind": "block",
+                    "type": "math_arithmetic"
+                },
+                {
+                    "kind": "block",
+                    "type": "text",
+                    "fields": {
+                        "TEXT": "Hello World"
+                    }
+                }
+            ]
+        };
+
+        // Initialize Blockly with our custom Canvas renderer
+        const workspace = Blockly.inject('blocklyDiv', {
+            toolbox: toolbox,
+            renderer: 'CustomRenderer',  // Use our custom Canvas renderer
+            theme: Blockly.Themes.Classic
+        });
+
+        // Add some sample blocks to test rendering
+        const xml = Blockly.utils.xml.textToDom(`
+            <xml>
+                <block type="controls_if" x="50" y="50">
+                    <value name="IF0">
+                        <block type="logic_compare">
+                            <field name="OP">EQ</field>
+                            <value name="A">
+                                <block type="math_number">
+                                    <field name="NUM">1</field>
+                                </block>
+                            </value>
+                            <value name="B">
+                                <block type="math_number">
+                                    <field name="NUM">1</field>
+                                </block>
+                            </value>
+                        </block>
+                    </value>
+                    <statement name="DO0">
+                        <block type="text">
+                            <field name="TEXT">Canvas rendering works!</field>
+                        </block>
+                    </statement>
+                </block>
+                <block type="math_arithmetic" x="300" y="200">
+                    <field name="OP">ADD</field>
+                    <value name="A">
+                        <block type="math_number">
+                            <field name="NUM">5</field>
+                        </block>
+                    </value>
+                    <value name="B">
+                        <block type="math_number">
+                            <field name="NUM">3</field>
+                        </block>
+                    </value>
+                </block>
+            </xml>
+        `);
+        
+        Blockly.Xml.domToWorkspace(xml, workspace);
+
+        // Log renderer info
+        console.log('Active renderer:', workspace.getRenderer().constructor.name);
+        console.log('Renderer name:', workspace.options.renderer);
+        
+        // Add event listener to see canvas rendering in action
+        workspace.addChangeListener(function(event) {
+            if (event.type === Blockly.Events.BLOCK_CREATE || 
+                event.type === Blockly.Events.BLOCK_MOVE) {
+                console.log('Block rendered with Canvas:', event);
+            }
+        });
+    </script>
+</body>
+</html>

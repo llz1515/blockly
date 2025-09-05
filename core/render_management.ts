@@ -191,3 +191,76 @@ function renderBlock(block: BlockSvg) {
   }
   block.renderEfficiently();
 }
+
+/**
+ * Recursively renders all of the dirty children of the given block with logging, and
+ * then renders the block with logging.
+ *
+ * @param block The block to rerender.
+ */
+function renderBlockWithLog(block: BlockSvg) {
+  if (!dirtyBlocks.has(block)) return;
+  if (!block.initialized) return;
+  for (const child of block.getChildren(false)) {
+    renderBlockWithLog(child);
+  }
+  console.log(`渲染block: ${block.type} (ID: ${block.id})`);
+  block.renderEfficientlyWithLog();
+}
+
+/**
+ * Rerenders all of the blocks in the queue with logging output.
+ *
+ * @param workspace If provided, only rerender blocks in this workspace.
+ */
+function doRendersWithLog(workspace?: WorkspaceSvg) {
+  const workspaces = workspace
+    ? new Set([workspace])
+    : new Set([...rootBlocks].map((block) => block.workspace));
+  const blocks = [...rootBlocks]
+    .filter(shouldRenderRootBlock)
+    .filter((b) => workspaces.has(b.workspace));
+  
+  console.log(`开始渲染 ${blocks.length} 个root blocks...`);
+  
+  for (const block of blocks) {
+    renderBlockWithLog(block);
+  }
+  for (const workspace of workspaces) {
+    workspace.resizeContents();
+  }
+  for (const block of blocks) {
+    const blockOrigin = block.getRelativeToSurfaceXY();
+    block.updateComponentLocations(blockOrigin);
+  }
+  for (const block of blocks) {
+    const oldGroup = eventUtils.getGroup();
+    const newGroup = eventGroups.get(block);
+    if (newGroup) eventUtils.setGroup(newGroup);
+
+    block.bumpNeighbours();
+
+    eventUtils.setGroup(oldGroup);
+  }
+
+  for (const block of blocks) {
+    dequeueBlock(block);
+  }
+  if (!workspace) afterRendersPromise = null;
+  
+  console.log('渲染完成！');
+}
+
+/**
+ * Triggers an immediate render of all queued renders with logging output. 
+ * Should only be used for debugging purposes.
+ *
+ * @param workspace If provided, only rerender blocks in this workspace.
+ *
+ * @internal
+ */
+export function triggerQueuedRendersWithLog(workspace?: WorkspaceSvg) {
+  if (!workspace) window.cancelAnimationFrame(animationRequestId);
+  doRendersWithLog(workspace);
+  if (!workspace && afterRendersResolver) afterRendersResolver();
+}

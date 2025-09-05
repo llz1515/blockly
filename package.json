@@ -147,6 +147,7 @@
     "yargs": "^17.2.1"
   },
   "dependencies": {
+    "canvas": "^3.2.0",
     "jsdom": "26.1.0"
   },
   "engines": {

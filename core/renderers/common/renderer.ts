@@ -233,4 +233,116 @@ export class Renderer implements IRegistrable {
     info.measure();
     this.makeDrawer_(block, info).draw();
   }
+
+  /**
+   * Render the block and output render infomation
+   *
+   * @param block The block to render.
+   * @internal
+   */
+  renderWithLog(block: BlockSvg){
+    const info = this.makeRenderInfo_(block);
+    info.measure();
+
+    const drawer = this.makeDrawer_(block, info);
+    drawer.draw();
+
+    // Collect all data in JSON format
+    const renderData = {
+      block: {
+        type: info.block_.type,
+        id: info.block_.id,
+        height: info.height,
+        width: info.width,
+        widthWithChildren: info.widthWithChildren,
+        startX: info.startX,
+        startY: info.startY,
+        topLeft : drawer.topLeft_,
+        BoundingRectangle : block.getBoundingRectangle(),
+        isInline: info.isInline,
+        isCollapsed: info.isCollapsed,
+        isInsertionMarker: info.isInsertionMarker,
+        RTL: info.RTL
+      },
+      rows: {
+        count: info.rows.length,
+        details: info.rows.map((row, index) => ({
+          index: index,
+          type: row.constructor.name,
+          width: row.width,
+          height: row.height,
+          xPos: row.xPos,
+          yPos: row.yPos,
+          widthWithConnectedBlocks: row.widthWithConnectedBlocks || 0,
+          elements: row.elements.map((elem, elemIndex) => ({
+            index: elemIndex,
+            type: elem.constructor.name,
+            width: elem.width,
+            height: elem.height,
+            xPos: elem.xPos,
+            centerline: elem.centerline || 0
+          }))
+        }))
+      },
+      parent: info.block_.getParent() ? {
+        type: info.block_.getParent()!.type,
+        id: info.block_.getParent()!.id
+      } : null,
+      children: {
+        count: info.block_.getChildren(false).length,
+        details: info.block_.getChildren(false).map((child, index) => ({
+          index: index,
+          type: child.type,
+          id: child.id
+        }))
+      },
+      connections: {
+        output: info.block_.outputConnection ? {
+          hasTarget: !!info.block_.outputConnection.targetBlock(),
+          targetType: info.block_.outputConnection.targetBlock()?.type || null,
+          targetId: info.block_.outputConnection.targetBlock()?.id || null
+        } : null,
+        next: info.block_.nextConnection ? {
+          hasTarget: !!info.block_.nextConnection.targetBlock(),
+          targetType: info.block_.nextConnection.targetBlock()?.type || null,
+          targetId: info.block_.nextConnection.targetBlock()?.id || null
+        } : null,
+        previous: info.block_.previousConnection ? {
+          hasTarget: !!info.block_.previousConnection.targetBlock(),
+          targetType: info.block_.previousConnection.targetBlock()?.type || null,
+          targetId: info.block_.previousConnection.targetBlock()?.id || null
+        } : null
+      },
+    };
+
+    // Log to console for debugging
+    console.log(`Block render data for ${info.block_.type} (${info.block_.id}):`, renderData);
+
+    // Download as JSON file
+    this.downloadJSON(renderData, `block_render_data_${info.block_.type}_${info.block_.id}.json`);
+  }
+
+  /**
+   * Download data as JSON file
+   * @param data The data to download
+   * @param filename The filename for the download
+   */
+  private downloadJSON(data: any, filename: string) {
+    const jsonString = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up the URL object
+    URL.revokeObjectURL(url);
+  }
+
 }

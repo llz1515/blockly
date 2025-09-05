@@ -42,6 +42,8 @@ export class Drawer {
     this.info_ = info;
     this.topLeft_ = block.getRelativeToSurfaceXY();
 
+    //console.log('topLeft', this.topLeft_);
+
     /** The renderer's constant provider. */
     this.constants_ = info.getRenderer().getConstants();
   }

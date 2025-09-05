@@ -27,14 +27,15 @@
       function createWorkspace(blocklyDiv, options) {
         var workspace = Blockly.inject(blocklyDiv, options);
         return workspace;
-      }
-
-      function configurePlayground(playground) {
+      }      function configurePlayground(playground) {
         // Rendering options.
         var gui = playground.getGUI();
         var renderingFolder = gui.addFolder('Rendering');
         var renderingOptions = {
           'font Size': 10,
+          'Render All Blocks With Log': function() {
+            renderAllBlocksWithLog(playground.getWorkspace());
+          }
         };
         renderingFolder
           .add(renderingOptions, 'font Size', 0, 50)
@@ -47,6 +48,27 @@
             // Refresh theme.
             ws.setTheme(ws.getTheme());
           });
+        
+        // Add button for rendering all blocks with log
+        renderingFolder.add(renderingOptions, 'Render All Blocks With Log');
+      }          
+      
+      function renderAllBlocksWithLog(workspace) {
+        console.log('开始渲染所有blocks...');
+        
+        // 获取所有blocks（包括子blocks）
+        const allBlocks = workspace.getAllBlocks(false);
+        console.log(`找到 ${allBlocks.length} 个blocks`);
+        
+        // 为所有blocks排队渲染
+        for (let i = 0; i < allBlocks.length; i++) {
+          const block = allBlocks[i];
+          console.log(`排队渲染block: ${block.type} (ID: ${block.id})`);
+          Blockly.renderManagement.queueRender(block);
+        }
+        
+        // 使用带日志输出的渲染函数（会调用renderEfficientlyWithLog）
+        Blockly.renderManagement.triggerQueuedRendersWithLog(workspace);
       }
 
       function initPlayground() {

@@ -1679,6 +1679,23 @@ export class BlockSvg
     dom.stopTextWidthCache();
   }
 
+  renderEfficientlyWithLog() {
+    dom.startTextWidthCache();
+
+    if (this.isCollapsed()) {
+      this.updateCollapsed();
+    }
+
+    if (!this.isEnabled()) {
+      this.updateDisabled();
+    }
+
+    this.workspace.getRenderer().renderWithLog(this);
+    this.tightenChildrenEfficiently();
+
+    dom.stopTextWidthCache();
+  }
+
   /**
    * Tightens all children of this block so they are snuggly rendered against
    * their parent connections.
